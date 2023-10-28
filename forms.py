@@ -32,3 +32,12 @@ class LoginForm(FlaskForm):
 class CommentForm(FlaskForm):
     content = CKEditorField("Comment", validators=[DataRequired()])
     submit = SubmitField("SUBMIT COMMENT")
+
+
+# TODO: Create a ContactForm so users can contact the page owner
+class ContactForm(FlaskForm):
+    name = StringField("Name", validators=[DataRequired()])
+    email = StringField("Email Address", validators=[DataRequired()])
+    phone_number = StringField("Phone Number", validators=[DataRequired()])
+    message = CKEditorField("Message", validators=[DataRequired()])
+    submit = SubmitField("SEND MESSAGE")

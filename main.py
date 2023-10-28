@@ -1,3 +1,4 @@
+import ssl
 from datetime import date
 from flask import Flask, abort, render_template, redirect, url_for, flash
 from flask_bootstrap import Bootstrap5
@@ -12,7 +13,7 @@ from sqlalchemy.exc import IntegrityError
 import os
 import pprint
 # Import your forms from the forms.py
-from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
+from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm, ContactForm
 # Optional: add contact me email functionality (Day 60)
 from smtplib import SMTP
 
@@ -263,9 +264,27 @@ def about():
     return render_template("about.html")
 
 
-@app.route("/contact")
+@app.route("/contact", methods=["GET", "POST"])
 def contact():
-    return render_template("contact.html")
+    contact_form = ContactForm()
+
+    if contact_form.validate_on_submit():
+
+        # SMTP Setup
+        password = os.environ.get("GOOGLE_APP_PASSWORD")
+        fromaddr = contact_form.email.data
+        email = os.environ.get("MY_EMAIL")
+
+        with SMTP("smtp.gmail.com", port=587) as connection:
+            connection.starttls()
+            connection.login(user=email, password=password)
+            connection.sendmail(from_addr=fromaddr, to_addrs=email,
+                                msg=f"Subject:Reaching out from your BlogPost Website\n\n{contact_form.message.data}")
+
+            flash("Message sent successfully!")
+            return redirect(url_for("contact"))
+
+    return render_template("contact.html", contact_form=contact_form)
 
 
 if __name__ == "__main__":
